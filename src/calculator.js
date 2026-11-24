@@ -4,6 +4,9 @@
  * - Subtraction (-)
  * - Multiplication (*)
  * - Division (/)
+ * - Modulo (%)
+ * - Exponentiation (**)
+ * - Square root
  */
 
 function add(left, right) {
@@ -26,6 +29,26 @@ function divide(left, right) {
   return left / right;
 }
 
+function modulo(left, right) {
+  if (right === 0) {
+    throw new Error("Modulo by zero is not allowed.");
+  }
+
+  return left % right;
+}
+
+function power(base, exponent) {
+  return base ** exponent;
+}
+
+function squareRoot(number) {
+  if (number < 0) {
+    throw new Error("Square root of a negative number is not allowed.");
+  }
+
+  return Math.sqrt(number);
+}
+
 const operations = {
   "+": add,
   add: add,
@@ -35,7 +58,17 @@ const operations = {
   multiply: multiply,
   "/": divide,
   divide: divide,
+  "%": modulo,
+  modulo: modulo,
+  "**": power,
+  "^": power,
+  power: power,
+  sqrt: squareRoot,
+  squareroot: squareRoot,
 };
+
+const binaryOperators = ["+", "-", "*", "/", "%", "**", "^"];
+const unaryOperations = ["sqrt", "squareroot"];
 
 function parseNumber(value, name) {
   const number = Number(value);
@@ -50,7 +83,7 @@ function parseNumber(value, name) {
 function calculate(operation, left, right) {
   if (typeof operation !== "string") {
     throw new Error(
-      'Unsupported operation. Use one of: addition (+), subtraction (-), multiplication (*), or division (/).'
+      "Unsupported operation. Use add, subtract, multiply, divide, modulo, power, or squareRoot."
     );
   }
 
@@ -58,7 +91,7 @@ function calculate(operation, left, right) {
 
   if (!operator) {
     throw new Error(
-      'Unsupported operation. Use one of: addition (+), subtraction (-), multiplication (*), or division (/).'
+      "Unsupported operation. Use add, subtract, multiply, divide, modulo, power, or squareRoot."
     );
   }
 
@@ -72,16 +105,40 @@ function printUsage() {
   console.log(
     "       node src/calculator.js <number> <operation> <number>"
   );
-  console.log("Operations: + (add), - (subtract), * (multiply), / (divide)");
+  console.log("       node src/calculator.js sqrt <number>");
+  console.log(
+    "Operations: + (add), - (subtract), * (multiply), / (divide), % (modulo), ** (power), sqrt"
+  );
   console.log("Examples:");
   console.log("  node src/calculator.js add 7 3");
   console.log("  node src/calculator.js '*' 7 3");
   console.log("  node src/calculator.js 7 + 3");
+  console.log("  node src/calculator.js modulo 7 3");
+  console.log("  node src/calculator.js power 2 3");
+  console.log("  node src/calculator.js sqrt 9");
 }
 
 function runCli(args) {
   if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
     printUsage();
+    return;
+  }
+
+  if (args.length === 2) {
+    const [first, second] = args;
+    const operation = unaryOperations.includes(first.toLowerCase())
+      ? first
+      : unaryOperations.includes(second.toLowerCase())
+        ? second
+        : null;
+
+    if (!operation) {
+      printUsage();
+      throw new Error("Expected an operation and exactly two numbers.");
+    }
+
+    const value = operation === first ? second : first;
+    console.log(calculate(operation, parseNumber(value, "Operand")));
     return;
   }
 
@@ -91,7 +148,7 @@ function runCli(args) {
   }
 
   const [first, second, third] = args;
-  const imageStyle = second && ["+", "-", "*", "/"].includes(second);
+  const imageStyle = second && binaryOperators.includes(second);
   const operation = imageStyle ? second : first;
   const leftValue = imageStyle ? first : second;
   const rightValue = imageStyle ? third : third;
@@ -115,5 +172,8 @@ module.exports = {
   subtract,
   multiply,
   divide,
+  modulo,
+  power,
+  squareRoot,
   calculate,
 };

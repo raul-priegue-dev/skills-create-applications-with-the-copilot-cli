@@ -6,6 +6,9 @@ const {
   subtract,
   multiply,
   divide,
+  modulo,
+  power,
+  squareRoot,
   calculate,
 } = require("../calculator");
 
@@ -61,11 +64,36 @@ test("division throws a clear error when dividing by zero", () => {
   );
 });
 
+test("modulo returns remainders and rejects a zero divisor", () => {
+  assert.equal(modulo(5, 2), 1);
+  assert.equal(modulo(10, 3), 1);
+  assert.equal(modulo(-10, 3), -1);
+  assert.throws(() => modulo(10, 0), /Modulo by zero is not allowed/);
+});
+
+test("power raises a base to an exponent", () => {
+  assert.equal(power(2, 3), 8);
+  assert.equal(power(5, 0), 1);
+  assert.equal(power(2, -2), 0.25);
+});
+
+test("squareRoot returns roots and rejects negative numbers", () => {
+  assert.equal(squareRoot(16), 4);
+  assert.equal(squareRoot(9), 3);
+  assert.equal(squareRoot(0), 0);
+  assert.throws(
+    () => squareRoot(-1),
+    /Square root of a negative number is not allowed/
+  );
+});
+
 test("calculate dispatches symbol operations", () => {
   assert.equal(calculate("+", 2, 3), 5);
   assert.equal(calculate("-", 10, 4), 6);
   assert.equal(calculate("*", 45, 2), 90);
   assert.equal(calculate("/", 20, 5), 4);
+  assert.equal(calculate("%", 10, 3), 1);
+  assert.equal(calculate("**", 2, 3), 8);
 });
 
 test("calculate dispatches named operations case-insensitively", () => {
@@ -73,11 +101,14 @@ test("calculate dispatches named operations case-insensitively", () => {
   assert.equal(calculate("SUBTRACT", 10, 4), 6);
   assert.equal(calculate("Multiply", 45, 2), 90);
   assert.equal(calculate("DIVIDE", 20, 5), 4);
+  assert.equal(calculate("MODULO", 10, 3), 1);
+  assert.equal(calculate("Power", 2, 3), 8);
+  assert.equal(calculate("SQUAREROOT", 9), 3);
 });
 
 test("calculate rejects unsupported operations", () => {
   assert.throws(
-    () => calculate("%", 10, 2),
+    () => calculate("?", 10, 2),
     /Unsupported operation/
   );
   assert.throws(
